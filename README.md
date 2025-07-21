@@ -31,8 +31,8 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
     - [Submit the Job](#submit-the-job)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
-  - [Reference](#reference)
-  - [Comments](#comments)
+  - [Links](#links)
+  - [Comments and Contact](#comments-and-contact)
 
 ## Getting Started
 
@@ -79,7 +79,7 @@ chmod 644 ~/.ssh/della_ed25519.pub
 ```
 This creates two files: a private key (`della_ed25519`) and a public key (`della_ed25519.pub`).
 
-_Copy public key to Della_
+_Copy public key to Della_:
 ```bash
 # Option 1: Automatic copy (recommended)
 ssh-copy-id -i ~/.ssh/della_ed25519.pub <YourNetID>@della.princeton.edu
@@ -156,7 +156,7 @@ Once connected, open a directory using the `Open Folder` button to start working
 
 You can now edit files, run terminals, and develop as if working locally while actually using Della's computational resources.
 
-_Troubleshooting:_ If you're on a Windows machine and cannot connect using VSCode, add the following to your SSH config:
+_Troubleshooting:_ If you're on a Windows machine and cannot connect using VSCode, try add the following to your SSH config:
 ```bash
     # Workaround for connection issues on Windows
     Ciphers aes128-ctr,aes256-ctr
@@ -391,6 +391,7 @@ As an example, to submit a GPU job:
 #SBATCH --output=test.out
 
 # Your job command here
+nvidia-smi
 echo "test complete"
 ```
 
@@ -420,8 +421,8 @@ The storage space you have access to are:
 
 - **`/home/<YourNetID>`**
   - 50GB per user.
-  - The /home directory of a user is for source code, executables, Conda environments, R packages, Julia packages, and small data sets.
-  - The /home directory of each user is backed up with the exception of the `.conda`, `.cache` and `.vscode` directories.
+  - The `/home` directory of a user is for source code, executables, Conda environments, R packages, Julia packages, and small data sets.
+  - The `/home` directory of each user is backed up with the exception of the `.conda`, `.cache` and `.vscode` directories.
 
 - **`/scratch/gpfs/<YourNetID>`**
   - 1TB per user.
@@ -431,7 +432,7 @@ The storage space you have access to are:
 - **`/scratch/gpfs/ZHUANGL`**
   - 15TB shared among the group.
   - Same functionality as individual scratch space but shared across the lab.
-  - Please create your personal directory at `/scratch/gpfs/ZHUANGL/<YourNetID>`.
+  - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**.
 
 - **`/tmp`** (not shown in the figure) 
   - This is local scratch space that exists on each compute node for high-speed reads and writes. If file I/O is a bottleneck in your code or if you need to store temporary data then you should consider using this.
@@ -448,9 +449,22 @@ The storage space you have access to are:
 - **`checkquota`** - Check your storage quota usage for home and scratch directories
 - **`jobstats <JobID>`** - Check the status and node usage of a running job.
 
-## Reference
+## Links
+Official websites;
+- Della Website: https://researchcomputing.princeton.edu/systems/della#GPU-Jobs
+- Storage information: https://researchcomputing.princeton.edu/support/knowledge-base/data-storage
 
-## Comments
+David's guide on neuronic cluster:
+- https://github.com/davidyyd/Princeton-cluster
+
+More Resources (thanks to david for highlighting these):
+- Slurm: https://researchcomputing.princeton.edu/support/knowledge-base/slurm
+- PyTorch: https://researchcomputing.princeton.edu/support/knowledge-base/pytorch
+- Huggingface: https://researchcomputing.princeton.edu/support/knowledge-base/hugging-face
+- VSCode: https://researchcomputing.princeton.edu/support/knowledge-base/vs-code
+- Sharing Data: https://researchcomputing.princeton.edu/support/knowledge-base/sharing-data
+
+## Comments and Contact
 For any questions regarding the setup or usage of the Della cluster, please contact Taiming Lu via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu).
 
 
