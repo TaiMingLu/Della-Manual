@@ -429,10 +429,10 @@ The storage space you have access to are:
   - The `/scratch/gpfs directory` of a user is for job input and output files, and for storing intermediate results.
   - The `/scratch/gpfs` filesystem is a fast, parallel filesystem that is local to each cluster which makes it ideal for storing job input and output files. However, because **`/scratch/gpfs` is not backed up** you will need to transfer your completed (non-volatile), job files to `/projects` or `/tigerdata` for long-term storage. The files belonging to a user in `/scratch/gpfs` are not purged until many months after the user has left the university. Write to [cses@princeton.edu](mailto:cses@princeton.edu) for questions about purging. 
 
-- **`/scratch/gpfs/ZHUANGL`**
+<!-- - **`/scratch/gpfs/ZHUANGL`**
   - 15TB shared among the group.
   - Same functionality as individual scratch space but shared across the lab.
-  - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**.
+  - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**. -->
 
 - **`/tmp`** (not shown in the figure) 
   - This is local scratch space that exists on each compute node for high-speed reads and writes. If file I/O is a bottleneck in your code or if you need to store temporary data then you should consider using this.
@@ -457,7 +457,7 @@ Official websites;
 David's guide on neuronic cluster:
 - https://github.com/davidyyd/Princeton-cluster
 
-More Resources (thanks to david for highlighting these):
+More Resources (thanks to David for highlighting these):
 - Slurm: https://researchcomputing.princeton.edu/support/knowledge-base/slurm
 - PyTorch: https://researchcomputing.princeton.edu/support/knowledge-base/pytorch
 - Huggingface: https://researchcomputing.princeton.edu/support/knowledge-base/hugging-face
