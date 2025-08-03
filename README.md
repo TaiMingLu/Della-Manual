@@ -465,6 +465,6 @@ More Resources (thanks to David for highlighting these):
 - Sharing Data: https://researchcomputing.princeton.edu/support/knowledge-base/sharing-data
 
 ## Comments and Contact
-For any questions regarding the setup or usage of the Della cluster, please contact Taiming Lu via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu).
+For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu) (make sure to send me a message for me to see it).
 
 
