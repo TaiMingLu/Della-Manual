@@ -14,8 +14,8 @@ Please contact Taiming Lu through [Messenger](http://facebook.com/taiminglu) (ma
 - [Della Cluster Manual](#della-cluster-manual)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
-  - [Quick Start](#quick-start)
   - [Getting Started](#getting-started)
+  - [Quick Launch](#quick-launch)
   - [Connect to the Cluster](#connect-to-the-cluster)
     - [Option 1: SSH Command Line](#option-1-ssh-command-line)
       - [Setup SSH Key](#setup-ssh-key)
@@ -38,7 +38,15 @@ Please contact Taiming Lu through [Messenger](http://facebook.com/taiminglu) (ma
   - [Links](#links)
   - [Comments and Contact](#comments-and-contact)
 
-## Quick Start
+## Getting Started
+
+<!-- ### Request Access -->
+
+To connect to Della, users must have either a Princeton account or a [Research Computer User (RCU) account](https://princeton.service-now.com/service/?id=sc_cat_item&sys_id=1ad90d40db80409072d3f482ba96192f) (for external collaborators) with a net ID. 
+
+Access from your account to Della is granted through brief [faculty-sponsored proposals](https://researchcomputing.princeton.edu/get-started/get-account#large_clusters). Since our research group already has an approved project on Della, please contact Zhuang to sponsor your access by submitting a request to [cses@princeton.edu](mailto:cses@princeton.edu). 
+
+## Quick Launch
 
 1. **Login to Della**: First, you need to connect to the cluster. See the [Connect to the Cluster](#connect-to-the-cluster) section for detailed instructions.
 
@@ -75,8 +83,6 @@ squeue --me
 ```bash
 cat my_first_job.out
 ```
-
-## Getting Started
 
 <!-- ### Request Access -->
 
