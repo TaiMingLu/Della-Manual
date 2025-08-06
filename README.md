@@ -45,7 +45,7 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
 
 To connect to Della, users must have either a Princeton account or a [Research Computer User (RCU) account](https://princeton.service-now.com/service/?id=sc_cat_item&sys_id=1ad90d40db80409072d3f482ba96192f) (for external collaborators) with a net ID. 
 
-Access from your account to Della is granted through brief [faculty-sponsored proposals](https://researchcomputing.princeton.edu/get-started/get-account#large_clusters). Since our research group already has an approved project on Della, please contact Zhuang to sponsor your access by submitting a request to [cses@princeton.edu](mailto:cses@princeton.edu). 
+If you are not approved of access to Della yet, but your research requires access, please contact Zhuang. 
 
 ## Quick Launch
 
