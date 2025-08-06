@@ -9,8 +9,6 @@ This manual is a guide for using the Della cluster in Zhuang's group at Princeto
 Della is a general-purpose high-performance computing cluster designed for running serial and parallel production jobs. 
 The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GPUs available if granted access to the PLI partition. For detailed cluster specifications, visit the [official website](https://researchcomputing.princeton.edu/systems/della).
 
-Please contact Taiming Lu through [Messenger](http://facebook.com/taiminglu) (make sure to send me a message) for any cluster related issues.
-
 
 ## Table of Contents
 
