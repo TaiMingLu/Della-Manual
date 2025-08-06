@@ -510,7 +510,7 @@ The storage space you have access to are:
 <details>
 <summary><strong>How many GPUs are available and how long should the queue be expected?</strong></summary>
 
-We found that Della has different usage throughout the week and sometimes the usage is high and sometimes is low. Please monitor the available GPUs and run them if there are available. You can check GPU availability using the `shownodes` command or through the MyDella web portal.
+We found that Della has different usage throughout the week and sometimes the usage is high and sometimes is low. Please monitor the available GPUs and run them if there are available. You can check GPU availability using the `shownodes` command, through the MyDella web portal, or use the `useful_scrips/gpu_avaliability.sh` script.
 
 </details>
 
