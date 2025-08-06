@@ -1,5 +1,8 @@
 # Della Cluster Manual
 
+**Contacts:** 
+For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu). Please make sure to send me a message on Messenger (instead of only sending a friend request on Facebook) for me to see it.
+
 ## Overview
 This manual is a guide for using the Della cluster in Zhuang's group at Princeton University.
 
@@ -539,8 +542,8 @@ More Resources (thanks to David for highlighting these):
 **Resource Allocation Guidelines:** Please request the maximum CPU and GPU resources that your workload can effectively utilize. If your application cannot fully utilize the requested resources, consider requesting a lower configuration (e.g., smaller VRAM GPU, fewer CPU cores, or less memory). Jobs that underutilize their allocated resources may receive lower priority in the queue.
 
 **Contacts:** 
-For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu) (make sure to send me a message for me to see it).
+For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu). Please make sure to send me a message on Messenger (instead of only sending a friend request on Facebook) for me to see it.
 
-If you encounter system issues on Della, you can also contact [cses@princeton.edu](cses@princeton.edu) for help. However, please first check if the issue has already been reported and resolved.
+If you encounter system issues on Della, you can also contact [cses@princeton.edu](cses@princeton.edu) for help. However, please first check with me if the issue has already been reported and resolved.
 
 
