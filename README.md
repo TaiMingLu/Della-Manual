@@ -1,10 +1,12 @@
 # Della Cluster Manual
 
 ## Overview
-This manual is a guide for using the Della cluster at Princeton University.
+This manual is a guide for using the Della cluster in Zhuang's group at Princeton University.
 
 Della is a general-purpose high-performance computing cluster designed for running serial and parallel production jobs. 
 The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GPUs available if granted access to the PLI partition. For detailed cluster specifications, visit the [official website](https://researchcomputing.princeton.edu/systems/della).
+
+Please contact Taiming Lu through [Messenger](http://facebook.com/taiminglu) (make sure to send me a message) for any cluster related issues.
 
 
 ## Table of Contents
@@ -12,6 +14,7 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
 - [Della Cluster Manual](#della-cluster-manual)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
+  - [Quick Start](#quick-start)
   - [Getting Started](#getting-started)
   - [Connect to the Cluster](#connect-to-the-cluster)
     - [Option 1: SSH Command Line](#option-1-ssh-command-line)
@@ -31,8 +34,47 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
     - [Submit the Job](#submit-the-job)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
+  - [Frequently Asked Questions](#frequently-asked-questions)
   - [Links](#links)
   - [Comments and Contact](#comments-and-contact)
+
+## Quick Start
+
+1. **Login to Della**: First, you need to connect to the cluster. See the [Connect to the Cluster](#connect-to-the-cluster) section for detailed instructions.
+
+2. **Create a SLURM script**: As an example, create a file called `my_job.sh` with the following content:
+
+```bash
+#!/bin/bash -l
+#SBATCH --job-name=my_first_job
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1          
+#SBATCH --gres=gpu:4                 
+#SBATCH --constraint=gpu80 
+#SBATCH --time=72:00:00
+#SBATCH --mem=30G                    
+#SBATCH --output=my_first_job.out
+
+# Your job commands here
+echo "Hello from Della!"
+nvidia-smi
+python --version
+```
+
+3. **Submit and run your job**:
+```bash
+sbatch my_job.sh
+```
+
+4. **Check job status**:
+```bash
+squeue --me
+```
+
+5. **View job output**:
+```bash
+cat my_first_job.out
+```
 
 ## Getting Started
 
@@ -429,10 +471,16 @@ The storage space you have access to are:
   - The `/scratch/gpfs directory` of a user is for job input and output files, and for storing intermediate results.
   - The `/scratch/gpfs` filesystem is a fast, parallel filesystem that is local to each cluster which makes it ideal for storing job input and output files. However, because **`/scratch/gpfs` is not backed up** you will need to transfer your completed (non-volatile), job files to `/projects` or `/tigerdata` for long-term storage. The files belonging to a user in `/scratch/gpfs` are not purged until many months after the user has left the university. Write to [cses@princeton.edu](mailto:cses@princeton.edu) for questions about purging. 
 
-<!-- - **`/scratch/gpfs/ZHUANGL`**
+- **`/scratch/gpfs/ZHUANGL`**
   - 15TB shared among the group.
   - Same functionality as individual scratch space but shared across the lab.
-  - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**. -->
+  - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**.
+
+- **`/tigerdata/zhuangl/vision-mix`**
+  - 15TB shared among the group.
+  - It has a longer read/write time and cannot be accessed through compute node.
+  - Refer to this [page](https://tigerdata.princeton.edu/) for more information.
+  - Please create your personal directory at **`/tigerdata/zhuangl/vision-mix/<YourNetID>`**.
 
 - **`/tmp`** (not shown in the figure) 
   - This is local scratch space that exists on each compute node for high-speed reads and writes. If file I/O is a bottleneck in your code or if you need to store temporary data then you should consider using this.
@@ -441,13 +489,30 @@ The storage space you have access to are:
 - `/scratch` directory cannot be accessed from a `login` node. The suggested practice is to download your data from a `visualization` node to `/scrach/` and access it from a compute node.
 - all compute nodes do not have Internet access. Because of this, a running job cannot download files, install packages or connect to GitHub. You will need to perform these operations on the `login` node or a `visualization` node (see [visualization node usage](#how-to-use) section above), which has internet connection, before submitting the job.
 
-**Note:** we are currently requesting [additional storage](https://tigerdata.princeton.edu/) space at `/tigerdata`. More information will be updated here upon request approval.
+<!-- **Note:** we are currently requesting [additional storage](https://tigerdata.princeton.edu/) space at `/tigerdata`. More information will be updated here upon request approval. -->
 
 ## Useful Commands
 
 - **`shownodes`** - Display current status and availability of compute nodes
 - **`checkquota`** - Check your storage quota usage for home and scratch directories
 - **`jobstats <JobID>`** - Check the status and node usage of a running job.
+
+## Frequently Asked Questions
+
+
+<details>
+<summary><strong>How many GPUs are available and how long should the queue be expected?</strong></summary>
+
+We found that Della has different usage throughout the week and sometimes the usage is high and sometimes is low. Please monitor the available GPUs and run them if there are available. You can check GPU availability using the `shownodes` command or through the MyDella web portal.
+
+</details>
+
+<details>
+<summary><strong>The --constraint=40G GPUs give me different type of configurations</strong></summary>
+
+This is a known issue from Della support. Using `--constraint=nomig` solves the issue by ensuring you get consistent GPU configurations.
+
+</details>
 
 ## Links
 Official websites;
