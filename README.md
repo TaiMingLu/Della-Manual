@@ -33,6 +33,12 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
       - [A100 40G](#a100-40g)
       - [A100 80G](#a100-80g)
     - [Submit the Job](#submit-the-job)
+  - [Della SLURM Queue](#della-slurm-queue)
+    - [Queue Overview](#queue-overview)
+    - [Age](#age)
+    - [Fairshare](#fairshare)
+    - [JobSize](#jobsize)
+    - [QOS (Quality of Service)](#qos-quality-of-service)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
   - [Frequently Asked Questions](#frequently-asked-questions)
@@ -459,6 +465,184 @@ srun --pty --nodes=1 --ntasks=1 --cpus-per-task=4 \
 
 This command launches an interactive shell on a compute node with the specified resources. Use this when you want to work interactively on a compute node, for example to test code, run short scripts, or debug interactively. Once the shell starts, any commands you run will execute on the allocated compute node with the requested resources. 
 
+
+
+
+
+## Della SLURM Queue
+
+### Queue Overview
+
+On della, the **priority** of your job only matters when there’s competition. If a job is eligible and there are free nodes that match requested constraints, it starts immediately even with a low priority.
+
+If your job is in a queue, it will be on a line sorted by your priority.
+
+
+**General Advices**
+- Stay in `--qos=gpu-short` (≤24h) and checkpoint—short jobs backfill faster and avoid gpu-medium caps.
+- Right-size `CPU/RAM/GPU`. Don’t over-ask; it hurts fit and future FairShare.
+  
+
+
+**Priority System**
+
+
+A jobs’s priority score is calculated as:
+
+$$
+\begin{aligned}
+\text{PRIORITY} &= W_A A + W_F F + W_J J + W_Q Q \\
+                &= 10000(\text{Age}) + 12000(\text{Fairshare}) + 1000(\text{JobSize}) + 8000(\text{QOS})
+\end{aligned}
+$$
+
+The higher the priority means the earlier in the queue.
+
+<details>
+  <summary><code>sprio -w</code> — show priority weights</summary>
+
+  <pre><code>$ sprio -w
+JOBID   PARTITION  PRIORITY  SITE    AGE    FAIRSHARE  JOBSIZE  QOS    TRES
+Weights                       1       10000  12000      10000    8000   CPU=1,Mem=1,GRES/gpu
+</code></pre>
+</details>
+
+
+
+###  Age
+
+**Definition**: How long your job has been eligible to run (i.e., ready to start, just waiting for resources). It grows linearly while the job is pending and eligible. 
+
+**Normalization**: Slurm caps/normalizes Age by PriorityMaxAge (30 days on della); once a job’s age ≥ that cap, its Age factor = 1.0(maxed). 
+
+
+$$
+\text{Age}=\min\!\left(\frac{\text{now}-\text{EligibleTime}}{\text{PriorityMaxAge}},\,1\right)
+$$
+
+<details>
+  <summary>Show Slurm config values for <code>PriorityMaxAge</code> & <code>PriorityWeightAge</code></summary>
+
+  <pre><code>$ scontrol show config | egrep '^PriorityMaxAge|^PriorityWeightAge'
+PriorityMaxAge     = 30-00:00:00
+PriorityWeightAge  = 10000
+</code></pre>
+</details>
+
+
+
+### Fairshare
+
+**Definition**: A 0–1 score Slurm computes for the user@account association your job is charged to. 
+Higher = you’ve used less than your entitled share recently.
+
+How it’s computed (conceptually):
+- Slurm maintains effective usage that decays exponentially with the cluster’s half-life (PriorityDecayHalfLife; on Della it’s 15 days).
+- Usage is tracked per TRES minutes (e.g., GPU-minutes, CPU-minutes) and rolled up the account tree (“Fair Tree”).
+- The scheduler turns that into a FairShare factor ∈ [0,1] for your user@account. That single scalar is what goes into the priority math.
+
+
+<details>
+  <summary>Show Slurm Fairshare settings: <code>PriorityDecayHalfLife</code>, <code>PriorityUsageResetPeriod</code>, <code>PriorityWeightFairShare</code></summary>
+
+  <pre><code>$ scontrol show config | egrep '^PriorityDecayHalfLife|^PriorityWeightFairShare|^PriorityUsageResetPeriod'
+PriorityDecayHalfLife   = 15-00:00:00
+PriorityUsageResetPeriod= NONE
+PriorityWeightFairShare = 12000
+</code></pre>
+</details>
+
+Account fairshare are separate (della vs pli), and all users in the account affect each other.
+
+To compute exactly, two factors are involved:
+
+- **NormShares**: Your entitled share among your peers at that level (users within an account, or accounts under a parent), normalized to sum to 1.
+- **EffectvUsage**: Your recent, decay-weighted share of actual usage among those same peers, normalized to sum to 1.
+
+From there, the fairshare value is computed
+
+1. **Account level (lab/project node) (29 total accounts)**  
+   Your account (e.g., `zhuangl`) competes with sibling accounts under the same parent. Higher **LevelFS** ⇒ the account is under-served vs its shares. The account’s standing is summarized by:
+
+$$
+\mathrm{LevelFS}(\text{account})
+=\frac{\mathrm{NormShares}(\text{account})}{\mathrm{EffectvUsage}(\text{account})}
+$$
+
+2. **User level (inside that account) (17 Users in zhuangl)**  
+   Users under the account compete with each other using the **same formula**:
+
+$$
+\mathrm{LevelFS}(\text{user@account})
+=\frac{\mathrm{NormShares}(\text{user})}{\mathrm{EffectvUsage}(\text{user})}
+$$
+
+Slurm orders accounts by **LevelFS(account)**, then orders users within the chosen account by **LevelFS(user)**, and ultimately maps that ordering (fairtree algorithm) to a **FairShare** ∈ [0,1] per **user@account**. That final scalar is what your job uses as **FF** in the priority sum.
+
+**LevelFS = NormShares / EffectvUsage — Slurm ranks by this.**
+
+- >1 means under-using (good),
+- ~1 on-share,
+- <1 over-using (bad).
+
+<details>
+  <summary>Show Fair-Tree metrics for account <code>zhuangl</code>  </summary>
+
+  <pre><code>$ sshare -lA zhuangl | awk 'NR&lt;20{print}'
+Account                 User     RawShares  NormShares      RawUsage  NormUsage  EffectvUsage  FairShare   LevelFS
+-------------------- ----------- ---------- ---------- ------------- ---------- ------------- ---------- ----------
+zhuangl                               1      0.034483   84895733916   0.038331     0.350300   0.098438    0.098438
+zhuangl                 $EXAMPLE_USER$         1      0.058824    9254803868   0.004179     0.109014   0.012704    0.539597
+</code></pre>
+</details>  
+
+<br>
+
+**Important:** On Della, not fully using your requested resources can also affect your fairshare, this includes CPU cores, RAM, GPU Utilization, GPU VRAM. A useful command is `jobstats $JOB_ID`. This command should be ran often to monitor your resource usage for a specific job.
+
+
+### JobSize
+
+**Definition:** A 0–1 factor that increases with how **big** your job request is. On Della, bigger job ⇒ bigger **J** because `PriorityFavorSmall=no`.
+
+- The **size of request in CPUs** determines it. On Della it’s effectively **CPUs requested** (GPUs don’t count here).
+- Slurm scales it to **0–1** by comparing your requested CPUs to the **largest job size** allowed/seen for the partition/cluster (your CPUs ÷ a max-CPU baseline, clamped). It’s **not relative to other users’ jobs**.
+
+_On estimate: Della counts ~0.5 jobsize per CPU._
+
+<details>
+  <summary>Show the JobSize component for a specific job</summary>
+
+  <pre><code>$ sprio -l -j 66690591
+JOBID     PARTITION  USER     ACCOUNT  PRIORITY  SITE  AGE  ASSOC  FAIRSHARE  JOBSIZE
+66690591  gpu        $EXAMPLE_USER   zhuangl       972     0    0      0        152      20
+</code></pre>
+</details>
+
+### QOS (Quality of Service)
+
+**Definition:** Slurm label attached to a job that bundles a **priority boost** and **policy limits** (time caps, per-user caps, group caps).
+
+$$
+\text{QOS term}=\left(\frac{\text{job's QOS priority}}{\text{max QOS priority in DB}}\right)
+$$
+
+- `gpu-test` (61 minutes) → **8000** weight → **0.40** Priority  
+- `gpu-short` (24 hours) → **5000** weight → **0.25** Priority  
+- `gpu-medium` (72 hours) → **2000** weight → **0.10** Priority  
+- `gpu-long` (144 hours) → **1000** weight → **0.05** Priority
+
+In addition to priority impact, Della post some hard constraints on QOS.
+| QoS        | Max walltime | QOS priority | QOS term (fraction) |
+|------------|--------------|--------------|---------------------|
+| gpu-test   | 61 minutes   | 8000         | 0.40                |
+| gpu-short  | 24 hours     | 5000         | 0.25                |
+| gpu-medium | 72 hours     | 2000         | 0.10                |
+| gpu-long   | 144 hours    | 1000         | 0.05                |
+
+
+
+In general, waiting time, job usage, and past usage together decides if you can get a job running.
 
 
 ## Storage
