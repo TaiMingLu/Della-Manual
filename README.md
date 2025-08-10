@@ -35,10 +35,10 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
     - [Submit the Job](#submit-the-job)
   - [Della SLURM Queue](#della-slurm-queue)
     - [Queue Overview](#queue-overview)
-    - [Age](#age)
-    - [Fairshare](#fairshare)
-    - [JobSize](#jobsize)
-    - [QOS (Quality of Service)](#qos-quality-of-service)
+      - [Age](#age)
+      - [Fairshare](#fairshare)
+      - [JobSize](#jobsize)
+      - [QOS (Quality of Service)](#qos-quality-of-service)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
   - [Frequently Asked Questions](#frequently-asked-questions)
@@ -475,7 +475,7 @@ This command launches an interactive shell on a compute node with the specified 
 
 On della, the **priority** of your job only matters when there’s competition. If a job is eligible and there are free nodes that match requested constraints, it starts immediately even with a low priority.
 
-If your job is in a queue, it will be on a line sorted by your priority.
+If your job is in a queue, it will be on a line sorted by your descending priority.
 
 
 **General Advices**
@@ -509,7 +509,7 @@ Weights                       1       10000  12000      10000    8000   CPU=1,Me
 
 
 
-###  Age
+####  Age
 
 **Definition**: How long your job has been eligible to run (i.e., ready to start, just waiting for resources). It grows linearly while the job is pending and eligible. 
 
@@ -531,7 +531,7 @@ PriorityWeightAge  = 10000
 
 
 
-### Fairshare
+#### Fairshare
 
 **Definition**: A 0–1 score Slurm computes for the user@account association your job is charged to. 
 Higher = you’ve used less than your entitled share recently.
@@ -540,7 +540,6 @@ How it’s computed (conceptually):
 - Slurm maintains effective usage that decays exponentially with the cluster’s half-life (PriorityDecayHalfLife; on Della it’s 15 days).
 - Usage is tracked per TRES minutes (e.g., GPU-minutes, CPU-minutes) and rolled up the account tree (“Fair Tree”).
 - The scheduler turns that into a FairShare factor ∈ [0,1] for your user@account. That single scalar is what goes into the priority math.
-
 
 <details>
   <summary>Show Slurm Fairshare settings: <code>PriorityDecayHalfLife</code>, <code>PriorityUsageResetPeriod</code>, <code>PriorityWeightFairShare</code></summary>
@@ -552,14 +551,19 @@ PriorityWeightFairShare = 12000
 </code></pre>
 </details>
 
-Account fairshare are separate (della vs pli), and all users in the account affect each other.
+Account fairshare are separate (e.g. della vs pli), and all users in the account affect each other.
 
 To compute exactly, two factors are involved:
 
 - **NormShares**: Your entitled share among your peers at that level (users within an account, or accounts under a parent), normalized to sum to 1.
 - **EffectvUsage**: Your recent, decay-weighted share of actual usage among those same peers, normalized to sum to 1.
 
-From there, the fairshare value is computed
+From there, the **LevelFS = NormShares / EffectvUsage** is computed — **Slurm ranks by this.**
+
+- `>1` means under-using (good),
+- `~1` on-share,
+- `<1` over-using (bad).
+
 
 1. **Account level (lab/project node) (29 total accounts)**  
    Your account (e.g., `zhuangl`) competes with sibling accounts under the same parent. Higher **LevelFS** ⇒ the account is under-served vs its shares. The account’s standing is summarized by:
@@ -577,13 +581,8 @@ $$
 =\frac{\mathrm{NormShares}(\text{user})}{\mathrm{EffectvUsage}(\text{user})}
 $$
 
+
 Slurm orders accounts by **LevelFS(account)**, then orders users within the chosen account by **LevelFS(user)**, and ultimately maps that ordering (fairtree algorithm) to a **FairShare** ∈ [0,1] per **user@account**. That final scalar is what your job uses as **FF** in the priority sum.
-
-**LevelFS = NormShares / EffectvUsage — Slurm ranks by this.**
-
-- >1 means under-using (good),
-- ~1 on-share,
-- <1 over-using (bad).
 
 <details>
   <summary>Show Fair-Tree metrics for account <code>zhuangl</code>  </summary>
@@ -601,7 +600,7 @@ zhuangl                 $EXAMPLE_USER$         1      0.058824    9254803868   0
 **Important:** On Della, not fully using your requested resources can also affect your fairshare, this includes CPU cores, RAM, GPU Utilization, GPU VRAM. A useful command is `jobstats $JOB_ID`. This command should be ran often to monitor your resource usage for a specific job.
 
 
-### JobSize
+#### JobSize
 
 **Definition:** A 0–1 factor that increases with how **big** your job request is. On Della, bigger job ⇒ bigger **J** because `PriorityFavorSmall=no`.
 
@@ -611,15 +610,15 @@ zhuangl                 $EXAMPLE_USER$         1      0.058824    9254803868   0
 _On estimate: Della counts ~0.5 jobsize per CPU._
 
 <details>
-  <summary>Show the JobSize component for a specific job</summary>
+  <summary>Show the JobSize component for a example job</summary>
 
   <pre><code>$ sprio -l -j 66690591
 JOBID     PARTITION  USER     ACCOUNT  PRIORITY  SITE  AGE  ASSOC  FAIRSHARE  JOBSIZE
-66690591  gpu        $EXAMPLE_USER   zhuangl       972     0    0      0        152      20
+$EXAMPLE_JOBID  gpu        $EXAMPLE_USER   zhuangl       972     0    0      0        152      20
 </code></pre>
 </details>
 
-### QOS (Quality of Service)
+#### QOS (Quality of Service)
 
 **Definition:** Slurm label attached to a job that bundles a **priority boost** and **policy limits** (time caps, per-user caps, group caps).
 
