@@ -517,7 +517,7 @@ Weights                       1       10000  12000      10000    8000   CPU=1,Me
 
 
 $$
-\text{Age}=\min\!\left(\frac{\text{now}-\text{EligibleTime}}{\text{PriorityMaxAge}},\,1\right)
+\text{Age}=\min\left(\frac{\text{now}-\text{EligibleTime}}{\text{PriorityMaxAge}},1\right)
 $$
 
 <details>
