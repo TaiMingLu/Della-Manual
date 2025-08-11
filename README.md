@@ -672,8 +672,10 @@ The storage space you have access to are:
   - Refer to this [page](https://tigerdata.princeton.edu/) for more information.
   - Please create your personal directory at **`/tigerdata/zhuangl/vision-mix/<YourNetID>`**.
 
+<!--
 - **`/tmp`** (not shown in the figure) 
   - This is local scratch space that exists on each compute node for high-speed reads and writes. If file I/O is a bottleneck in your code or if you need to store temporary data then you should consider using this.
+-->
 
 **Important:** 
 - `/scratch` directory cannot be accessed from a `login` node. The suggested practice is to download your data from a `visualization` node to `/scrach/` and access it from a compute node.
