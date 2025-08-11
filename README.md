@@ -268,8 +268,8 @@ Della is composed of both CPU and GPU nodes:
 | gpu | 2.8 GHz Intel Ice Lake | 59 | 48 | 1000 GB | AVX-512 | 4 (A100) |
 | gpu | 2.8 GHz Intel Ice Lake | 10 | 48 | 1000 GB | AVX-512 | 8 (MIG A100) |
 | mig | 2.8 GHz Intel Ice Lake | 2 | 48 | 1000 GB | AVX-512 | 28 (MIG A100) |
-| pli | 2.8 ARM Neoverse-V2 | 1 | 72 | 575 GB | -- | 1 (GH200)* |
-| pli | 2.1 GHz Intel Sapphire Rapids | 42 | 96 | 1000 GB | AVX-512 | 8 (H100)** |
+| pli | 2.8 ARM Neoverse-V2 | 1 | 72 | 575 GB | -- | 1 (GH200) |
+| pli | 2.1 GHz Intel Sapphire Rapids | 42 | 96 | 1000 GB | AVX-512 | 8 (H100) |
 
 Each GPU has either 10 GB, 40 GB or 80 GB of memory. The nodes of Della are connected with FDR Infiniband.
 
