@@ -38,7 +38,7 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
       - [Age](#age)
       - [Fairshare](#fairshare)
       - [JobSize](#jobsize)
-      - [QOS (Quality of Service)](#qos-quality-of-service)
+      - [QOS](#qos-quality-of-service)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
   - [Frequently Asked Questions](#frequently-asked-questions)
@@ -480,7 +480,7 @@ If your job is in a queue, it will be on a line sorted by your descending priori
 
 **General Advices**
 - Stay in `--qos=gpu-short` (≤24h) and checkpoint—short jobs backfill faster and avoid gpu-medium caps.
-- Right-size `CPU/RAM/GPU`. Don’t over-ask; it hurts fit and future FairShare.
+- Right-size `CPU/RAM/GPU`. Don’t over-ask; it hurts fit and future FairShare. You can use the `jobstats $JOB_ID` command to monitor your resource utilization.
   
 
 
