@@ -631,6 +631,24 @@ $$
 - `gpu-medium` (72 hours) → **2000** weight → **0.10** Priority  
 - `gpu-long` (144 hours) → **1000** weight → **0.05** Priority
 
+<details>
+  <summary>Show the QoS effect on priority</summary>
+
+  <pre><code>$ sacctmgr show qos format=name,priority,maxwall,maxjobsperuser,maxtres,grptres%60
+JOBID     PARTITION  USER     ACCOUNT  PRIORITY  SITE  AGE  ASSOC  FAIRSHARE  JOBSIZE
+$EXAMPLE_JOBID  gpu        $EXAMPLE_USER   zhuangl       972     0    0      0        152      20
+      Name   Priority     MaxWall MaxJobsPU       MaxTRES                                                      GrpTRES 
+---------- ---------- ----------- --------- ------------- ------------------------------------------------------------ 
+ gpu-short       5000  1-00:00:00        44                                                                            
+gpu-medium       2000  3-00:00:00        24                                                               gres/gpu=160 
+  gpu-long       1000  6-00:00:00        10       node=16                                                              
+  gpu-test       8000                     3                                                                            
+</code></pre>
+</details>
+
+</br>
+
+
 In addition to priority impact, Della post some hard constraints on QOS.
 | QoS        | Max walltime | QOS priority | QOS term (fraction) |
 |------------|--------------|--------------|---------------------|
