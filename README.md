@@ -1,7 +1,7 @@
 # Della Cluster Manual
 
 **Contacts:** 
-For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu). Please make sure to send me a message on Messenger (instead of only sending a friend request on Facebook) for me to see it.
+For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu), Slack, or [Messenger](http://facebook.com/taiminglu). Please make sure to send me a message on Messenger (instead of only sending a friend request on Facebook) for me to see it.
 
 ## Overview
 This manual is a guide for using the Della cluster in Zhuang's group at Princeton University.
