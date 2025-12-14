@@ -465,7 +465,7 @@ srun --pty --nodes=1 --ntasks=1 --cpus-per-task=4 \
 
 This command launches an interactive shell on a compute node with the specified resources. Use this when you want to work interactively on a compute node, for example to test code, run short scripts, or debug interactively. Once the shell starts, any commands you run will execute on the allocated compute node with the requested resources. 
 
-
+For H100 and PLI partition, refer to [notion guide](https://zinc-scale-b3f.notion.site/The-Della-cluster-and-the-PLI-partition-a3526cf557334124903964a3fa529f68?pvs=4).
 
 
 
