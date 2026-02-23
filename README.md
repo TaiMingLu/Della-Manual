@@ -7,7 +7,7 @@ For any questions regarding the setup or usage of the Della cluster, please cont
 This manual is a guide for using the Della cluster in Zhuang's group at Princeton University.
 
 Della is a general-purpose high-performance computing cluster designed for running serial and parallel production jobs. 
-The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GPUs available if granted access to the PLI partition. For detailed cluster specifications, visit the [official website](https://researchcomputing.princeton.edu/systems/della).
+The cluster features both CPU and GPU nodes, with 356 A100 GPUs, 336 H100 GPUs (PLI partition), and 144 H200 GPUs (AI Lab partition). For detailed cluster specifications, visit the [official website](https://researchcomputing.princeton.edu/systems/della).
 
 
 ## Table of Contents
@@ -32,13 +32,15 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, and 336 H100 GP
       - [MIG GPUs](#mig-gpus)
       - [A100 40G](#a100-40g)
       - [A100 80G](#a100-80g)
+      - [PLI (H100)](#pli-h100)
+      - [AI Lab (H200)](#ai-lab-h200)
     - [Submit the Job](#submit-the-job)
   - [Della SLURM Queue](#della-slurm-queue)
     - [Queue Overview](#queue-overview)
       - [Age](#age)
       - [Fairshare](#fairshare)
       - [JobSize](#jobsize)
-      - [QOS](#qos-quality-of-service)
+      - [QOS (Quality of Service)](#qos-quality-of-service)
   - [Storage](#storage)
   - [Useful Commands](#useful-commands)
   - [Frequently Asked Questions](#frequently-asked-questions)
@@ -270,6 +272,7 @@ Della is composed of both CPU and GPU nodes:
 | mig | 2.8 GHz Intel Ice Lake | 2 | 48 | 1000 GB | AVX-512 | 28 (MIG A100) |
 | pli | 2.8 ARM Neoverse-V2 | 1 | 72 | 575 GB | -- | 1 (GH200) |
 | pli | 2.1 GHz Intel Sapphire Rapids | 42 | 96 | 1000 GB | AVX-512 | 8 (H100) |
+| ailab | 2.5 GHz Intel Emerald Rapids | 18 | 64 | 1500 GB | AVX-512 | 8 (H200) |
 
 Each GPU has either 10 GB, 40 GB or 80 GB of memory. The nodes of Della are connected with FDR Infiniband.
 
@@ -427,6 +430,33 @@ There are 64 nodes with 4 GPUs per node. Each GPU has 80 GB of memory. To explic
 
 Each node has two sockets with two GPUs per socket. The GPUs on the same socket are connected via NVLink. The CPUs are Intel.
 
+#### PLI (H100)
+
+If you have access to the PLI partition, you will have access to H100 SXM GPUs (42 nodes at 8 GPUs per node). Each H100 GPU provides 80 GB of GPU memory and support for the FP8 numerical format. The GPUs within a node are connected in an all-to-all configuration with NVLink, and there is a dedicated NDR Infiniband network for internode GPU-GPU communication. Each node has 96 Intel CPU-cores and 1 TB of CPU memory.
+
+To run batch jobs, add the following directives to your Slurm script:
+```bash
+#SBATCH --partition=pli
+#SBATCH --account=<ACCOUNT>
+```
+
+For interactive jobs:
+```bash
+$ salloc --nodes=1 --ntasks=1 --mem=4G --time=01:01:00 --gres=gpu:1 --partition=pli --account=<ACCOUNT> --mail-type=begin
+```
+Users are asked to not run more than 2 interactive jobs simultaneously.
+
+#### AI Lab (H200)
+
+Approved members of the AI Lab have exclusive access to 144 H200 PCIe GPUs (18 nodes at 8 GPUs per node). Each H200 GPU provides 141 GB of GPU memory and support for the FP8 numerical format. Each node has 64 Intel CPU-cores and 1.5 TB of CPU memory.
+
+To run on the H200 GPUs, add the following directive to your Slurm script:
+```bash
+#SBATCH --partition=ailab
+```
+
+Run the `gfree` command to see the number of free GPUs.
+
 ### Submit the Job
 
 As an example, to submit a GPU job:
@@ -465,7 +495,7 @@ srun --pty --nodes=1 --ntasks=1 --cpus-per-task=4 \
 
 This command launches an interactive shell on a compute node with the specified resources. Use this when you want to work interactively on a compute node, for example to test code, run short scripts, or debug interactively. Once the shell starts, any commands you run will execute on the allocated compute node with the requested resources. 
 
-For H100 and PLI partition, refer to [notion guide](https://zinc-scale-b3f.notion.site/The-Della-cluster-and-the-PLI-partition-a3526cf557334124903964a3fa529f68?pvs=4).
+For more details on PLI and AI Lab partitions, see the [PLI (H100)](#pli-h100) and [AI Lab (H200)](#ai-lab-h200) sections above.
 
 
 
