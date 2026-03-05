@@ -704,18 +704,13 @@ The storage space you have access to are:
   - The `/home` directory of a user is for source code, executables, Conda environments, R packages, Julia packages, and small data sets.
   - The `/home` directory of each user is backed up with the exception of the `.conda`, `.cache` and `.vscode` directories.
 
-- **`/scratch/gpfs/<YourNetID>`**
-  - 1TB per user.
-  - The `/scratch/gpfs directory` of a user is for job input and output files, and for storing intermediate results.
-  - The `/scratch/gpfs` filesystem is a fast, parallel filesystem that is local to each cluster which makes it ideal for storing job input and output files. However, because **`/scratch/gpfs` is not backed up** you will need to transfer your completed (non-volatile), job files to `/projects` or `/tigerdata` for long-term storage. The files belonging to a user in `/scratch/gpfs` are not purged until many months after the user has left the university. Write to [cses@princeton.edu](mailto:cses@princeton.edu) for questions about purging. 
-
 - **`/scratch/gpfs/ZHUANGL`**
-  - 15TB shared among the group.
+  - 250TB shared among the group.
   - Same functionality as individual scratch space but shared across the lab.
   - Please create your personal directory at **`/scratch/gpfs/ZHUANGL/<YourNetID>`**.
 
 - **`/tigerdata/zhuangl/vision-mix`**
-  - 15TB shared among the group.
+  - 220TB shared among the group.
   - It has a longer read/write time and cannot be accessed through compute node.
   - Refer to this [page](https://tigerdata.princeton.edu/) for more information.
   - Please create your personal directory at **`/tigerdata/zhuangl/vision-mix/<YourNetID>`**.
