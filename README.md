@@ -228,7 +228,7 @@ Host tigressgateway
 ```
 - `ncat` is part of the [Nmap](https://nmap.org/download.html) suite. Install via `brew install nmap` (macOS), `apt install ncat` (Ubuntu/Debian), or `choco install nmap` (Windows).
 - `--proxy-type socks5` tells `ncat` to use the SOCKS5 protocol.
-- `--proxy 127.0.0.1:<PORT>` points to your local proxy. Replace `<PORT>` with the SOCKS5 port your VPN client is listening on (check your proxy client settings — common values are `1080`, `7890`, `12330`, etc.).
+- `--proxy 127.0.0.1:<PORT>` points to your local proxy. Replace `<PORT>` with the SOCKS5 port your proxy client (e.g., Clash, Shadowrocket, V2Ray) is listening on (check your client settings — common values are `1080`, `7890`, `12330`, etc.).
 - `%h %p` are SSH placeholders for the target hostname and port.
 
 
