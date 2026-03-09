@@ -53,7 +53,7 @@ The cluster features both CPU and GPU nodes, with 356 A100 GPUs, 336 H100 GPUs (
 
 To connect to Della, users must have either a Princeton account or a [Research Computer User (RCU) account](https://princeton.service-now.com/service/?id=sc_cat_item&sys_id=1ad90d40db80409072d3f482ba96192f) (for external collaborators) with a net ID. 
 
-If you are not approved of access to Della yet, but your research requires access, please contact Zhuang. 
+If you are not yet approved for access to Della, but your research requires access, please contact Zhuang. 
 
 ## Quick Launch
 
@@ -100,9 +100,31 @@ To connect to Della, users must have either a Princeton account or a [Research C
 Access from your account to Della is granted through brief [faculty-sponsored proposals](https://researchcomputing.princeton.edu/get-started/get-account#large_clusters). Since our research group already has an approved project on Della, please contact Zhuang to sponsor your access by submitting a request to [cses@princeton.edu](mailto:cses@princeton.edu). 
 
 ## Connect to the Cluster
-Once you have been granted access to Della, you can connect using an SSH client.
+Once you have been granted access to Della, you can connect using an SSH client. For more information on SSH, see the [Princeton SSH documentation](https://researchcomputing.princeton.edu/ssh).
 
-**Note**: VPN is required when accessing the cluster from off-campus. The recommended option is [GlobalProtect VPN](https://princeton.service-now.com/service?sys_id=KB0012373&id=kb_article), which can be downloaded [here](https://vpn.princeton.edu/). VPN is not required when connected directly to campus wifi ([eduroam](https://princeton.service-now.com/service?id=kb_article&sys_id=2c5368d84f3b22001961f7e18110c74d)).
+**On campus:** You must be on the campus wired network or connected to the [eduroam](https://princeton.service-now.com/service?id=kb_article&sys_id=2c5368d84f3b22001961f7e18110c74d) wireless network (not `puvisitor` or `servicenet`). Make sure you use your Princeton credentials if connecting via eduroam.
+
+**Off campus:** You must use either a VPN or the SSH gateway (tigressgateway) to reach the cluster. See Option A and Option B below. If your network environment prevents GlobalProtect from tunneling SSH, see [SSH through a SOCKS5 proxy](#ssh-through-a-socks5-proxy).
+
+**Option A: VPN** — Install the [GlobalProtect VPN](https://princeton.service-now.com/service?sys_id=KB0012373&id=kb_article) client ([download here](https://vpn.princeton.edu/)). Once connected to VPN, you can SSH to Della directly as if you were on campus. Make sure you are using a **Princeton University VPN** and not the VPN of another institution. A VPN is also needed to use [MyDella](https://mydella.princeton.edu).
+
+**Option B: SSH Gateway (tigressgateway)** — If you do not want to use GlobalProtect VPN, you can connect through Princeton's SSH gateway `tigressgateway.princeton.edu`. This acts as a jump host that forwards your SSH connection to Della. No VPN is required for this approach. You will be prompted for [DUO two-factor authentication](https://princeton.service-now.com/service?id=kb_article&sys_id=b332d4b74f4ca6008a7c0ef31310c7e7) when connecting through tigressgateway.
+
+To connect via tigressgateway from the command line:
+```bash
+ssh <YourNetID>@tigressgateway.princeton.edu
+# Once on tigressgateway, SSH to Della:
+ssh <YourNetID>@della.princeton.edu
+```
+
+Or use SSH's `-J` flag to do it in one step:
+```bash
+ssh -J <YourNetID>@tigressgateway.princeton.edu <YourNetID>@della.princeton.edu
+```
+
+To avoid typing this every time, see the [Config SSH](#config-ssh) section below for how to add `ProxyJump` to your SSH config.
+
+**Troubleshooting:** If you see `Connection closed by remote host` or `Operation timed out`, you are likely off-campus without VPN or tigressgateway. If you see `Permission denied (publickey,keyboard-interactive)`, you may not have a Della account. Visit `https://myip.rc.princeton.edu` to check your IP address and for troubleshooting tips.
 
 ### Option 1: SSH Command Line
 
@@ -122,7 +144,7 @@ For more information on SSH, see the [SSH FAQ](https://princeton.service-now.com
 
 #### Setup SSH Key
 
-SSH keys provide secure, passwordless authentication to the cluster. Instead of typing your password each time, you can use SSH keys use cryptographic authentication with a public/private key pair.
+SSH keys provide secure, passwordless authentication to the cluster. Instead of typing your password each time, SSH keys use cryptographic authentication with a public/private key pair.
 
 _Generate SSH key pair on your local machine:_
 ```bash
@@ -163,24 +185,51 @@ _Create or edit SSH config file:_
 nano ~/.ssh/config
 ```
 
-_Add configuration for Della:_
+_Add configuration for Della (on campus or using VPN):_
 ```bash
 Host della
   HostName della.princeton.edu   # or della-gpu.princeton.edu
   User <YourNetID>
-```
-
-_If you have created SSH keys in previous step, add:_
-```bash
   IdentityFile ~/.ssh/della_ed25519
   IdentitiesOnly yes
 ```
 
-_Connect using the alias:_
-Once configured, you can connect simply with:
+_If you are connecting from off-campus without VPN, use this instead (both entries are required):_
+```bash
+Host della
+  HostName della.princeton.edu
+  User <YourNetID>
+  IdentityFile ~/.ssh/della_ed25519
+  IdentitiesOnly yes
+  ProxyJump <YourNetID>@tigressgateway
+
+Host tigressgateway
+  HostName tigressgateway.princeton.edu
+  User <YourNetID>
+  IdentityFile ~/.ssh/della_ed25519
+  IdentitiesOnly yes
+```
+
+_Once configured, you can connect simply with:_
 ```bash
 ssh della
 ```
+
+##### SSH through a SOCKS5 proxy
+
+In rare cases when off-campus, GlobalProtect VPN may route web traffic but not tunnel SSH connections (e.g., due to local network restrictions). If you can browse the web through GlobalProtect but `ssh` still times out, you can route SSH through a local SOCKS5 proxy instead. Add a `ProxyCommand` to the `tigressgateway` entry above:
+```bash
+Host tigressgateway
+  HostName tigressgateway.princeton.edu
+  User <YourNetID>
+  IdentityFile ~/.ssh/della_ed25519
+  IdentitiesOnly yes
+  ProxyCommand ncat --proxy-type socks5 --proxy 127.0.0.1:<PORT> %h %p
+```
+- `ncat` is part of the [Nmap](https://nmap.org/download.html) suite. Install via `brew install nmap` (macOS), `apt install ncat` (Ubuntu/Debian), or `choco install nmap` (Windows).
+- `--proxy-type socks5` tells `ncat` to use the SOCKS5 protocol.
+- `--proxy 127.0.0.1:<PORT>` points to your local proxy. Replace `<PORT>` with the SOCKS5 port your proxy client (e.g., Clash, Shadowrocket, V2Ray) is listening on (check your client settings — common values are `1080`, `7890`, `12330`, etc.).
+- `%h %p` are SSH placeholders for the target hostname and port.
 
 
 
@@ -213,7 +262,7 @@ Once connected, open a directory using the `Open Folder` button to start working
 
 You can now edit files, run terminals, and develop as if working locally while actually using Della's computational resources.
 
-_Troubleshooting:_ If you're on a Windows machine and cannot connect using VSCode, try add the following to your SSH config:
+_Troubleshooting:_ If you're on a Windows machine and cannot connect using VSCode, try adding the following to your SSH config:
 ```bash
     # Workaround for connection issues on Windows
     Ciphers aes128-ctr,aes256-ctr
@@ -250,9 +299,9 @@ The login nodes, `della8` and `della-gpu`, should be used for interactive work o
 
 **Visualization Nodes:** the Della cluster has two dedicated nodes for visualization and post-processing tasks, called `della-vis1` and `della-vis2`, which can be connected via
 ```bash
-# della-vsi1: 80 CPU-cores, 1 TB of memory, 1 40GB A100 GPU with  of memory.
+# della-vis1: 80 CPU-cores, 1 TB of memory, 1 40GB A100 GPU.
 ssh <YourNetID>@della-vis1.princeton.edu
-# della-vsi2: 28 CPU-cores, 256 GB of memory, four 16 GB P100 GPUs.
+# della-vis2: 28 CPU-cores, 256 GB of memory, four 16 GB P100 GPUs.
 ssh <YourNetID>@della-vis2.princeton.edu
 ```
 Note that there is no job scheduler on `della-vis1` or `della-vis2`. In addition to visualization, the nodes can be used for tasks that are incompatible with the Slurm job scheduler, or for work that is not appropriate for the Della `login` nodes (such as downloading large amounts of data from the internet).
@@ -276,7 +325,7 @@ Della is composed of both CPU and GPU nodes:
 
 Each GPU has either 10 GB, 40 GB or 80 GB of memory. The nodes of Della are connected with FDR Infiniband.
 
-You can check the current system status on `https://mydella.princeton.edu` → (`Files` / `Jobs` / `Cluster`). You can also the `shownodes` command in a terminal for additional information about the nodes.
+You can check the current system status on `https://mydella.princeton.edu` → (`Files` / `Jobs` / `Cluster`). You can also use the `shownodes` command in a terminal for additional information about the nodes.
 
 
 ## Compute Node
@@ -508,7 +557,7 @@ On della, the **priority** of your job only matters when there’s competition. 
 If your job is in a queue, it will be on a line sorted by your descending priority.
 
 
-**General Advices**
+**General Advice**
 - Stay in `--qos=gpu-short` (≤24h) and checkpoint—short jobs backfill faster and avoid gpu-medium caps.
 - Right-size `CPU/RAM/GPU`. Don’t over-ask; it hurts fit and future FairShare. You can use the `jobstats $JOB_ID` command to monitor your resource utilization.
   
@@ -517,7 +566,7 @@ If your job is in a queue, it will be on a line sorted by your descending priori
 **Priority System**
 
 
-A jobs’s priority score is calculated as:
+A job’s priority score is calculated as:
 
 $$
 \begin{aligned}
@@ -526,7 +575,7 @@ $$
 \end{aligned}
 $$
 
-The higher the priority means the earlier in the queue.
+The higher the priority, the earlier in the queue.
 
 <details>
   <summary><code>sprio -w</code> — show priority weights</summary>
@@ -627,7 +676,7 @@ zhuangl                 $EXAMPLE_USER$         1      0.058824    9254803868   0
 
 <br>
 
-**Important:** On Della, not fully using your requested resources can also affect your fairshare, this includes CPU cores, RAM, GPU Utilization, GPU VRAM. A useful command is `jobstats $JOB_ID`. This command should be ran often to monitor your resource usage for a specific job.
+**Important:** On Della, not fully using your requested resources can also affect your fairshare, this includes CPU cores, RAM, GPU Utilization, GPU VRAM. A useful command is `jobstats $JOB_ID`. This command should be run often to monitor your resource usage for a specific job.
 
 
 #### JobSize
@@ -640,7 +689,7 @@ zhuangl                 $EXAMPLE_USER$         1      0.058824    9254803868   0
 _On estimate: Della counts ~0.5 jobsize per CPU._
 
 <details>
-  <summary>Show the JobSize component for a example job</summary>
+  <summary>Show the JobSize component for an example job</summary>
 
   <pre><code>$ sprio -l -j 66690591
 JOBID     PARTITION  USER     ACCOUNT  PRIORITY  SITE  AGE  ASSOC  FAIRSHARE  JOBSIZE
@@ -679,7 +728,7 @@ gpu-medium       2000  3-00:00:00        24                                     
 </br>
 
 
-In addition to priority impact, Della post some hard constraints on QOS.
+In addition to priority impact, Della imposes some hard constraints on QOS.
 | QoS        | Max walltime | QOS priority | QOS term (fraction) |
 |------------|--------------|--------------|---------------------|
 | gpu-test   | 61 minutes   | 8000         | 0.40                |
@@ -694,10 +743,10 @@ In general, waiting time, job usage, and past usage together decides if you can 
 
 ## Storage
 
-Here is a schematic diagram below shows the filesystems that are available on Della:
+The schematic diagram below shows the filesystems that are available on Della:
 ![Storage Diagram](./pics/storage.png)
 
-The storage space you have access to are:
+The storage spaces you have access to are:
 
 - **`/home/<YourNetID>`**
   - 50GB per user.
@@ -721,8 +770,8 @@ The storage space you have access to are:
 -->
 
 **Important:** 
-- `/scratch` directory cannot be accessed from a `login` node. The suggested practice is to download your data from a `visualization` node to `/scrach/` and access it from a compute node.
-- all compute nodes do not have Internet access. Because of this, a running job cannot download files, install packages or connect to GitHub. You will need to perform these operations on the `login` node or a `visualization` node (see [visualization node usage](#how-to-use) section above), which has internet connection, before submitting the job.
+- `/scratch` directory cannot be accessed from a `login` node. The suggested practice is to download your data from a `visualization` node to `/scratch/` and access it from a compute node.
+- All compute nodes do not have Internet access. Because of this, a running job cannot download files, install packages or connect to GitHub. You will need to perform these operations on the `login` node or a `visualization` node (see [visualization node usage](#how-to-use) section above), which has internet connection, before submitting the job.
 
 <!-- **Note:** we are currently requesting [additional storage](https://tigerdata.princeton.edu/) space at `/tigerdata`. More information will be updated here upon request approval. -->
 
@@ -738,7 +787,7 @@ The storage space you have access to are:
 <details>
 <summary><strong>How many GPUs are available and how long should the queue be expected?</strong></summary>
 
-We found that Della has different usage throughout the week and sometimes the usage is high and sometimes is low. Please monitor the available GPUs and run them if there are available. You can check GPU availability using the `shownodes` command, through the MyDella web portal, or use the `useful_scrips/gpu_avaliability.sh` script.
+We found that Della has different usage throughout the week and sometimes the usage is high and sometimes is low. Please monitor the available GPUs and run jobs when GPUs are available. You can check GPU availability using the `shownodes` command, through the MyDella web portal, or use the `useful_scrips/gpu_avaliability.sh` script.
 
 </details>
 
