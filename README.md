@@ -1,3 +1,9 @@
+> [!CAUTION]
+> **This repository is deprecated and no longer maintained.**
+> Please refer to the new, up-to-date guide: [zlab-princeton-internal/cluster-guide](https://github.com/zlab-princeton-internal/cluster-guide)
+
+---
+
 # Della Cluster Manual
 
 **Contacts:** 
@@ -569,10 +575,10 @@ If your job is in a queue, it will be on a line sorted by your descending priori
 A job’s priority score is calculated as:
 
 $$
-\begin{aligned}
-\text{PRIORITY} &= W_A A + W_F F + W_J J + W_Q Q \\
-                &= 10000(\text{Age}) + 12000(\text{Fairshare}) + 1000(\text{JobSize}) + 8000(\text{QOS})
-\end{aligned}
+egin{aligned}
+	ext{PRIORITY} &= W_A A + W_F F + W_J J + W_Q Q \
+                &= 10000(	ext{Age}) + 12000(	ext{Fairshare}) + 1000(	ext{JobSize}) + 8000(	ext{QOS})
+nd{aligned}
 $$
 
 The higher the priority, the earlier in the queue.
@@ -596,7 +602,7 @@ Weights                       1       10000  12000      10000    8000   CPU=1,Me
 
 
 $$
-\text{Age}=\min\left(\frac{\text{now}-\text{EligibleTime}}{\text{PriorityMaxAge}},1\right)
+	ext{Age}=\min\left(rac{	ext{now}-	ext{EligibleTime}}{	ext{PriorityMaxAge}},1ight)
 $$
 
 <details>
@@ -648,16 +654,16 @@ From there, the **LevelFS = NormShares / EffectvUsage** is computed — **Slurm 
    Your account (e.g., `zhuangl`) competes with sibling accounts under the same parent. Higher **LevelFS** ⇒ the account is under-served vs its shares. The account’s standing is summarized by:
 
 $$
-\mathrm{LevelFS}(\text{account})
-=\frac{\mathrm{NormShares}(\text{account})}{\mathrm{EffectvUsage}(\text{account})}
+\mathrm{LevelFS}(	ext{account})
+=rac{\mathrm{NormShares}(	ext{account})}{\mathrm{EffectvUsage}(	ext{account})}
 $$
 
 2. **User level (inside that account) (17 Users in zhuangl)**  
    Users under the account compete with each other using the **same formula**:
 
 $$
-\mathrm{LevelFS}(\text{user@account})
-=\frac{\mathrm{NormShares}(\text{user})}{\mathrm{EffectvUsage}(\text{user})}
+\mathrm{LevelFS}(	ext{user@account})
+=rac{\mathrm{NormShares}(	ext{user})}{\mathrm{EffectvUsage}(	ext{user})}
 $$
 
 
@@ -702,7 +708,7 @@ $EXAMPLE_JOBID  gpu        $EXAMPLE_USER   zhuangl       972     0    0      0  
 **Definition:** Slurm label attached to a job that bundles a **priority boost** and **policy limits** (time caps, per-user caps, group caps).
 
 $$
-\text{QOS term}=\left(\frac{\text{job's QOS priority}}{\text{max QOS priority in DB}}\right)
+	ext{QOS term}=\left(rac{	ext{job's QOS priority}}{	ext{max QOS priority in DB}}ight)
 $$
 
 - `gpu-test` (61 minutes) → **8000** weight → **0.40** Priority  
@@ -820,5 +826,3 @@ More Resources (thanks to David for highlighting these):
 For any questions regarding the setup or usage of the Della cluster, please contact [Taiming Lu](https://taiminglu.com) via [email](mailto:tl0463@princeton.edu) or through [Messenger](http://facebook.com/taiminglu). Please make sure to send me a message on Messenger (instead of only sending a friend request on Facebook) for me to see it.
 
 If you encounter system issues on Della, you can also contact [cses@princeton.edu](cses@princeton.edu) for help. However, please first check with me if the issue has already been reported and resolved.
-
-
